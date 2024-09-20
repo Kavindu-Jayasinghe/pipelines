@@ -7,8 +7,8 @@ This repository contains a GitHub Actions workflow that automates the process of
 ### Step 1: Add the Workflow File
 
 1. Create a new folder called `.github/workflows/` in your repository if it doesn't already exist.
-2. Inside that folder, add  file  `file-name.yml`.
-3. Copy the content.
+2. Inside that folder, add new file  `file-name.yml`.
+3. Copy the content of `github-action-trivy.yaml`.
 
 ### Step 2: Add Docker Hub Credentials as GitHub Secrets
 
