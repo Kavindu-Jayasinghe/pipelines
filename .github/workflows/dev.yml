@@ -1,0 +1,41 @@
+on:
+  push:
+    branches:
+      - <branch-name>  # Replace with your target branch (e.g., 'main', 'develop')
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # If you're using Docker Hub, add your credentials as secrets. 
+      # If you're using another registry, replace the login credentials with the appropriate ones for that registry.
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}  # Set your Docker Hub username as a GitHub secret
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Set your Docker Hub password as a GitHub secret
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push Docker image
+        run: |
+          docker buildx build --platform linux/amd64 --push \
+          -t <your-dockerhub-username>/<your-image-name>:${{ github.sha }} -f Dockerfile .
+        # The 'github.sha' is used as the image tag, which is a unique build ID for each commit.
+        # Replace <your-dockerhub-username> with your Docker Hub username.
+        # Replace <your-image-name> with the name of the image you want to build and push.
+
+      - name: Install Trivy (image scanning tool)
+        run: |
+          sudo apt-get install -y curl
+          curl -fsSL https://github.com/aquasecurity/trivy/releases/download/v0.29.0/trivy_0.29.0_Linux-64bit.deb -o trivy.deb
+          sudo dpkg -i trivy.deb
+
+      - name: Scan Docker image with Trivy
+        run: trivy image <your-dockerhub-username>/<your-image-name>:${{ github.sha }}
+        # Replace <your-dockerhub-username> and <your-image-name> with the same values used in the build step.
